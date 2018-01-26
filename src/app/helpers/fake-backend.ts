@@ -1,15 +1,16 @@
-import { Http, BaseRequestOptions, Response, ResponseOptions, RequestMethod } from '@angular/http';
-import { MockBackend, MockConnection } from '@angular/http/testing';
+import {Http, BaseRequestOptions, Response, ResponseOptions, RequestMethod} from '@angular/http';
+import {MockBackend, MockConnection} from '@angular/http/testing';
 
-export function fakeBackendFactory(
-    backend: MockBackend, 
-    options: BaseRequestOptions) {
-        
+export function fakeBackendFactory(backend: MockBackend,
+                                   options: BaseRequestOptions) {
+  // token whit out admin role
+  // let token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6Ik1vc2ggSGFtZWRhbmkiLCJhZG1pbiI6ZmFsc2V9.oEyti9UbZt78ejCXw9Ocv20zoqXp6ZWNMXDI_b6oICk';
+  // token whit admin role
   let token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6Ik1vc2ggSGFtZWRhbmkiLCJhZG1pbiI6dHJ1ZX0.iy8az1ZDe-_hS8GLDKsQKgPHvWpHl0zkQBqy1QIPOkA';
-    
+
   backend.connections.subscribe((connection: MockConnection) => {
-    // We are using the setTimeout() function to simulate an 
-    // asynchronous call to the server that takes 1 second. 
+    // We are using the setTimeout() function to simulate an
+    // asynchronous call to the server that takes 1 second.
     setTimeout(() => {
       //
       // Fake implementation of /api/authenticate
@@ -22,33 +23,31 @@ export function fakeBackendFactory(
           connection.mockRespond(new Response(
             new ResponseOptions({
               status: 200,
-              body: { token: token }
-           })));
+              body: {token: token}
+            })));
         } else {
           connection.mockRespond(new Response(
-            new ResponseOptions({ status: 200 })
+            new ResponseOptions({status: 200})
           ));
         }
       }
 
 
-
-       // 
-       // Fake implementation of /api/orders
-       //
-       if (connection.request.url.endsWith('/api/orders') && 
-           connection.request.method === RequestMethod.Get) {
-         if (connection.request.headers.get('Authorization') === 'Bearer ' + token) {
-            connection.mockRespond(new Response(
-              new ResponseOptions({ status: 200, body: [1, 2, 3] })
-         ));
-       } else {
-           connection.mockRespond(new Response(
-             new ResponseOptions({ status: 401 })
-           ));
-       }
-    }
-
+      //
+      // Fake implementation of /api/orders
+      //
+      if (connection.request.url.endsWith('/api/orders') &&
+        connection.request.method === RequestMethod.Get) {
+        if (connection.request.headers.get('Authorization') === 'Bearer ' + token) {
+          connection.mockRespond(new Response(
+            new ResponseOptions({status: 200, body: [1, 2, 3]})
+          ));
+        } else {
+          connection.mockRespond(new Response(
+            new ResponseOptions({status: 401})
+          ));
+        }
+      }
 
 
     }, 1000);
@@ -58,7 +57,7 @@ export function fakeBackendFactory(
 }
 
 export let fakeBackendProvider = {
-    provide: Http,
-    useFactory: fakeBackendFactory,
-    deps: [MockBackend, BaseRequestOptions]
+  provide: Http,
+  useFactory: fakeBackendFactory,
+  deps: [MockBackend, BaseRequestOptions]
 };
